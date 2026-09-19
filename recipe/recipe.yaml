@@ -14,7 +14,7 @@ source:
   sha256: 95f140816d1b0038af9afeb6b57984820badfd960db8bb95968aff02dfc42e73
 
 build:
-  number: 0
+  number: 1
   script:
     - cargo-bundle-licenses --format yaml --output THIRDPARTY.yml
     - cd pysplashsurf
