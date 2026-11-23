@@ -12,9 +12,15 @@ package:
 source:
   url: https://github.com/InteractiveComputerGraphics/splashsurf/archive/refs/tags/${{ tag }}.tar.gz
   sha256: 95f140816d1b0038af9afeb6b57984820badfd960db8bb95968aff02dfc42e73
+  patches:
+    # Upstream .cargo/config.toml sets target-cpu=native, so the binary only
+    # runs on CPUs like the build machine (e.g. AVX-512). Remove this patch
+    # once upstream drops it from .cargo/config.toml:
+    # https://github.com/InteractiveComputerGraphics/splashsurf/issues/243
+    - 0001-drop-target-cpu-native.patch
 
 build:
-  number: 2
+  number: 3
   script:
     - cargo-bundle-licenses --format yaml --output THIRDPARTY.yml
     - cd pysplashsurf
@@ -53,6 +59,18 @@ tests:
       run:
         - pip
         - python
+  # Guard: the linux-64 extension must not contain AVX-512 instructions.
+  - if: linux and x86_64
+    then:
+      script:
+        - python check_no_avx512.py
+      files:
+        recipe:
+          - check_no_avx512.py
+      requirements:
+        run:
+          - binutils
+          - python
 
 about:
   homepage: https://splashsurf.physics-simulation.org/
